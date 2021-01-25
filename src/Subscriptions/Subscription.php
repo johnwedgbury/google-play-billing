@@ -21,6 +21,10 @@ class Subscription
      *
      */
     const URI_ACKNOWLEDGE = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/%s/purchases/subscriptions/%s/tokens/%s:acknowledge";
+    /**
+     *
+     */
+    const URI_CANCEL = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/%s/purchases/subscriptions/%s/tokens/%s:cancel";
 
     /**
      * @var Client
@@ -82,9 +86,21 @@ class Subscription
     /**
      *
      */
-    public function cancel(): void
+    public function cancel(?string $developerPayload = null): SubscriptionPurchase
     {
-        // TODO: implement cancel method
+        $subscriptionPurchase = $this->get();
+
+        if (! $subscriptionPurchase->getAcknowledgementState()->isAcknowledged()) {
+            $uri = sprintf(self::URI_CANCEL, $this->packageName, $this->subscriptionId, $this->token);
+            $options = [
+                'form_params' => [
+                    'developerPayload' => $developerPayload,
+                ],
+            ];
+            $this->client->post($uri, $options);
+        }
+
+        return $subscriptionPurchase;
     }
 
     /**
